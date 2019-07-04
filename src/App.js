@@ -4,33 +4,49 @@ import './App.css';
 import Person from './Person/Person';
 
 class App extends Component {
-  state={
+  state = {
     persons: [
-      {name: 'Max', age: 28},
-      {name: 'John', age: 31},
-      {name: 'Anna', age: 18}
+      { id:'asde1', name: 'Max', age: 28 },
+      { id:'rewvc5', name: 'John', age: 31 },
+      { id:'asdf7', name: 'Anna', age: 18 }
     ],
-    otherState: 'some value'
+    otherState: 'some value',
+    showPerson: false
   }
 
-  switchNameHandler = (newName) => {
-    this.setState({persons : [
-      {name: newName, age: 28},
-      {name: 'John', age: 31},
-      {name: 'Anna', age: 16}
-    ]})
+  nameChangeHandler = (event, id) => {
+    const personIndex = this.state.persons.findIndex(p=> {
+      return p.id===id;
+    });
+
+    //opat kopia objektu nie refencia, novsi a starsi sposob
+    const person={...this.state.persons[personIndex]};
+    //const person=Object.assign({}, this.state.persons[personIndex]);
+
+    // najprv kopia jedneho objektu
+    person.name=event.target.value;
+    // potom celeho pola
+    const persons=[...this.state.persons];
+    persons[personIndex]=person;
+
+    this.setState({persons: persons})
   }
 
-  nameChangeHandler = (event) => {
-    this.setState({persons : [
-      {name: 'Max', age: 28},
-      {name: event.target.value, age: 31},
-      {name: 'Anna', age: 16}
-    ]})
+  deletePersonHandler = (index)=> {
+    //nepouzit refenciu ale novu kopiu!!
+    //const persons=this.state.persons.slice();
+    const persons=[...this.state.persons];
+    persons.splice(index, 1);
+    this.setState({persons:persons});
+  }
+
+  togglePersonHandler = () => {
+    const doesShow=this.state.showPerson;
+    this.setState({showPerson: !doesShow})
   }
 
   render() {
-    const style={
+    const style = {
       backgroundColor: 'white',
       font: 'inherit',
       border: '1px solid blue',
@@ -38,28 +54,34 @@ class App extends Component {
       cursor: 'pointer'
     };
 
+    let persons=null;
+
+    if(this.state.showPerson) {
+      persons= (
+        <div>
+          {this.state.persons.map((person, index) =>{
+            return <Person 
+              click={()=>this.deletePersonHandler(index)}
+              changed={(event)=>this.nameChangeHandler(event, person.id)}
+              name={person.name} 
+              age={person.age}
+              key={person.id}/>
+          })}        
+      </div>
+      );
+    }
+
+
     return (
       <div className="App">
         <h1>Hi, I'm React!</h1>
         <p>This works :)</p>
-        <button 
+        <button
           style={style}
-          onClick={()=>this.switchNameHandler('MadMax')}>
-          Switch Name
+          onClick={this.togglePersonHandler}>
+          Toggle Persons
         </button>
-        <Person 
-          name={this.state.persons[0].name} 
-          age={this.state.persons[0].age} />
-        <Person 
-          name={this.state.persons[1].name} 
-          age={this.state.persons[1].age}
-          click={this.switchNameHandler.bind(this, 'Maximus')} 
-          changed={this.nameChangeHandler}>
-          My Hobbies: Racing
-        </Person>
-        <Person 
-          name={this.state.persons[2].name} 
-          age={this.state.persons[2].age} />
+        {persons}
       </div>
     );
   }
@@ -68,48 +90,3 @@ class App extends Component {
 
 export default App;
 
-/*
-const App=props=> {
-    const [personsState, setPersonsState]=useState({
-      persons: [
-        {name: 'Max', age: 28},
-        {name: 'John', age: 31},
-        {name: 'Anna', age: 18}
-      ], 
-      //otherState: 'some value'
-    });
-
-    const [otherState, setOtherState]=useState({
-      otherState: 'anther value set'
-    })
-
-    console.log(personsState, otherState);
-
-    const switchNameHandler = () => {
-      setPersonsState ({persons : [
-          {name: 'Maximilian', age: 28},
-          {name: 'John', age: 31},
-          {name: 'Anna', age: 16}
-        ], 
-        //ostatne objekty sa musia vzdy skopirovat, aj ked sa nemenili, inac sa stratia!!!
-        //pri class-componente a setState to netreba
-        //otherState: personsState.otherState 
-      })
-    };
-
-    return (
-      <div className="App">
-        <h1>Hi, I'm React!</h1>
-        <p>This works :)</p>
-        <button onClick={switchNameHandler}>Switch Name</button>
-        <Person name={personsState.persons[0].name} age={personsState.persons[0].age} />
-        <Person name={personsState.persons[1].name} age={personsState.persons[1].age} >
-          My Hobbies: Racing
-        </Person>
-        <Person name={personsState.persons[2].name} age={personsState.persons[2].age} />
-      </div>
-    );
-  }
-
-export default App;
-*/
