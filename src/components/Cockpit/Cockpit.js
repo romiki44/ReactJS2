@@ -1,7 +1,20 @@
-import React from 'react';
+import React, {useEffect, useRef, useContext} from 'react';
 import classes from './Cockpit.module.css';
+import AuthContext from '../../context/auth-context';
 
-const cockpit = (props) => {
+const Cockpit = (props) => {
+  const toggleBtnRef=useRef(null);
+  const authContext=useContext(AuthContext);
+
+  console.log(authContext.authenticated);
+
+  useEffect(()=>{
+    //console.log('Cockpit.js useEffect');
+
+    //po componenetDidMount sa aktivuje click-event
+    toggleBtnRef.current.click();
+  }, []);
+  
   const assignedClasses = [];
   let btnClass='';
   if(props.showPersons) {
@@ -17,15 +30,17 @@ const cockpit = (props) => {
 
   return (
     <div className={classes.Cockpit}>
-      <h1>Hi, I'm React!</h1>
+      <h1>{props.title}</h1>
       <p className={assignedClasses.join(' ')}>This works :)</p>
       <button
+        ref={toggleBtnRef}
         className={btnClass}
         onClick={props.clicked}>
         Toggle Persons
       </button>
+      <button onClick={authContext.login}>Login</button>
     </div>
   );
 }
 
-export default cockpit;
+export default Cockpit;
